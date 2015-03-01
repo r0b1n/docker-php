@@ -177,8 +177,8 @@ class ImageManager
     {
         $response = $this->client->delete(['/images/{image}?force={force}&noprune={noprune}', [
             'image'   => $image->__toString(),
-            'force'   => $force,
-            'noprune' => $noprune,
+            'force'   => $force ? 1 : 0,
+            'noprune' => $noprune ? 1 : 0,
             'wait'    => true
         ]]);
 
@@ -262,7 +262,7 @@ class ImageManager
                 'name' => $image->getId(),
                 'repository' => $repository,
                 'tag' => $tag,
-                'force' => intval($force)
+                'force' => $force ? 1 : 0
             ]
         ]);
 

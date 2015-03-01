@@ -227,10 +227,10 @@ class ContainerManager
     public function exec(Container $container, array $cmd = [], $attachstdin = false, $attachstdout = true, $attachstderr = true, $tty = false)
     {
         $body = [
-            'AttachStdin'  => $attachstdin,
-            'AttachStdout' => $attachstdout,
-            'AttachStderr' => $attachstderr,
-            'Tty'          => $tty,
+            'AttachStdin'  => $attachstdin ? 1 : 0,
+            'AttachStdout' => $attachstdout ? 1 : 0,
+            'AttachStderr' => $attachstderr ? 1 : 0,
+            'Tty'          => $tty ? 1 : 0,
             'Cmd' => $cmd
         ];
         $response = $this->client->post(['/containers/{id}/exec', ['id' => $container->getId()]], [
@@ -262,7 +262,10 @@ class ContainerManager
      */
     public function execstart($execid, callable $callback = null, $detach = false, $tty = false)
     {
-        $body = ['Detach' => $detach, 'Tty' => $tty ];
+        $body = [
+            'Detach' => $detach ? 1 : 0, 
+            'Tty' => $tty ? 1 : 0
+        ];
         $callback = $callback === null ? function() {} : $callback;
         $response = $this->client->post(['/exec/{id}/start', ['id' => $execid]], [
             'body'         => Json::encode($body),
@@ -301,11 +304,11 @@ class ContainerManager
         $response = $this->client->post(['/containers/{id}/attach{?data*}', [
             'id'     => $container->getId(),
             'data' => [
-                'logs'   => $logs,
-                'stream' => $stream,
-                'stdin'  => $stdin,
-                'stdout' => $stdout,
-                'stderr' => $stderr,
+                'logs'   => $logs ? 1 : 0,
+                'stream' => $stream ? 1 : 0,
+                'stdin'  => $stdin ? 1 : 0,
+                'stdout' => $stdout ? 1 : 0,
+                'stderr' => $stderr ? 1 : 0,
             ]
         ]], [
             'timeout'  => $timeout !== null ? $timeout : $this->client->getDefaultOption('timeout'),
@@ -338,11 +341,11 @@ class ContainerManager
         $response = $this->client->get(['/containers/{id}/attach/ws{?data*}', [
             'id' => $container->getId(),
             'data' => [
-                'logs'   => $logs,
-                'stream' => $stream,
-                'stdin'  => $stdin,
-                'stdout' => $stdout,
-                'stderr' => $stderr,
+                'logs'   => $logs ? 1 : 0,
+                'stream' => $stream ? 1 : 0,
+                'stdin'  => $stdin ? 1 : 0,
+                'stdout' => $stdout ? 1 : 0,
+                'stderr' => $stderr ? 1 : 0,
             ]
         ]], [
             'headers' => [
@@ -425,7 +428,7 @@ class ContainerManager
     {
         $response = $this->client->delete(['/containers/{id}?v={volumes}', [
             'id' => $container->getId(),
-            'v' => $volumes,
+            'v' => $volumes ? 1 : 0,
             'wait' => true
         ]]);
 
@@ -562,10 +565,10 @@ class ContainerManager
         $this->client->get(['/containers/{id}/logs{?data*}', [
             'id' => $container->getId(),
             'data' => [
-                'follow' => (int)$follow,
-                'stdout' => (int)$stdout,
-                'stderr' => (int)$stderr,
-                'timestamps' => (int)$timestamp,
+                'follow' => $follow ? 1 : 0,
+                'stdout' => $stdout ? 1 : 0,
+                'stderr' => $stderr ? 1 : 0,
+                'timestamps' => $timestamp ? 1 : 0,
                 'tail' => $tail,
             ],
         ]], [
