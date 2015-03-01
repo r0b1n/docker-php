@@ -242,4 +242,59 @@ class ImageManager
 
         return $response->json();
     }
+
+    /**
+     * Tag an image
+     *
+     * @param Image $image image to tag
+     * @param $repository Repository name to use
+     * @param string $tag Tag to use
+     * @param bool $force Force to set tag even if an image with the same name already exists ?
+     *
+     * @throws \Docker\Exception\UnexpectedStatusCodeException
+     *
+     * @return ImageManager
+     */
+    public function tag(Image $image, $repository, $tag = 'latest', $force = false)
+    {
+        $response = $this->client->post([
+            '/images/{name}/tag?repo={repository}&tag={tag}&force={force}', [
+                'name' => $image->getId(),
+                'repository' => $repository,
+                'tag' => $tag,
+                'force' => intval($force)
+            ]
+        ]);
+
+        if ($response->getStatusCode() !== "201") {
+            throw UnexpectedStatusCodeException::fromResponse($response);
+        }
+
+        $image->setRepository($repository);
+        $image->setTag($tag);
+
+        return $this;
+    }
+
+    /**
+     * Get history of an image
+     *
+     * @param Image $image
+     *
+     * @throws \Docker\Exception\UnexpectedStatusCodeException
+     *
+     * @return array
+     */
+    public function history(Image $image)
+    {
+        $response = $this->client->get(['/images/{name}/history', [
+            'name' => $image->__toString()
+        ]]);
+
+        if ($response->getStatusCode() !== "200") {
+            throw UnexpectedStatusCodeException::fromResponse($response);
+        }
+
+        return $response->json();
+    }
 }
