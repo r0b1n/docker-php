@@ -1,0 +1,26 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+        {
+            "description": "",
+            "is_official": false,
+            "is_automated": false,
+            "name": "wma55/u1210sshd",
+            "star_count": 0
+        },
+        {
+            "description": "",
+            "is_official": false,
+            "is_automated": false,
+            "name": "jdswinbank/sshd",
+            "star_count": 0
+        },
+        {
+            "description": "",
+            "is_official": false,
+            "is_automated": false,
+            "name": "vgauthier/sshd",
+            "star_count": 0
+        }
+]
