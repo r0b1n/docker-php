@@ -2,7 +2,7 @@
 
 namespace Docker\Tests\Manager;
 
-use Docker\Tests\TestCase;
+use Docker\Tests\IsolatedTestCase;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Url;
@@ -12,11 +12,8 @@ use GuzzleHttp\Message\Response;
 use GuzzleHttp\Stream\Stream;
 
 
-class ImageManagerIsolatedTest extends TestCase
+class ImageManagerIsolatedTest extends IsolatedTestCase
 {
-    private $_booleanAllowed = ['1', 'true', 'True', '0', 'false', 'False'];
-    private $_mock;
-    private $_history;
 
     /**
      * Return a container manager
@@ -30,28 +27,16 @@ class ImageManagerIsolatedTest extends TestCase
 
     private function getMockedManager($list, $clientOptions = [])
     {
-        $client = new Client($clientOptions);
-        $this->_history = new History();
-        $this->_mock = new Mock($list);
-
-        $client->getEmitter()->attach($this->_mock);
-        $client->getEmitter()->attach($this->_history);
-
-        $manager = new \Docker\Manager\ImageManager($client);
+        $manager = new \Docker\Manager\ImageManager($this->getMockedClient($list, $clientOptions));
 
         return $manager;
-    }
-
-    private function getRequestsHistory()
-    {
-        return $this->_history;
     }
 
     public function findProvider()
     {
         return [
-            [ file_get_contents(dirname(__FILE__) . '/data/01-dockerImage.json'), 'test', 'foo', 'b750fe79269d2ec9a3c593ef05b4332b1d1a02a62b4accb2c21d589ff2f5f2dc' ],
-            [ file_get_contents(dirname(__FILE__) . '/data/01-dockerImage.json'), 'repo_here', 'sometag', 'b750fe79269d2ec9a3c593ef05b4332b1d1a02a62b4accb2c21d589ff2f5f2dc' ]
+            [ $this->fromFile('/data/image/01-dockerImage.json'), 'test', 'foo', 'b750fe79269d2ec9a3c593ef05b4332b1d1a02a62b4accb2c21d589ff2f5f2dc' ],
+            [ $this->fromFile('/data/image/01-dockerImage.json'), 'repo_here', 'sometag', 'b750fe79269d2ec9a3c593ef05b4332b1d1a02a62b4accb2c21d589ff2f5f2dc' ]
         ];
     }
 
@@ -66,7 +51,7 @@ class ImageManagerIsolatedTest extends TestCase
     public function findAllProvider()
     {
         return [
-            [ file_get_contents(dirname(__FILE__) . '/data/02-dockerFindAll.json') ]
+            [ $this->fromFile('/data/image/02-dockerFindAll.json') ]
         ];
     }
 
@@ -74,7 +59,7 @@ class ImageManagerIsolatedTest extends TestCase
     {
         return [
             [ 
-                file_get_contents(dirname(__FILE__) . '/data/05-dockerHistory.json'),
+                $this->fromFile('/data/image/05-dockerHistory.json'),
                 'somerepo',
                 'sometag'
             ]
@@ -85,8 +70,8 @@ class ImageManagerIsolatedTest extends TestCase
     {
         return [
             [
-                file_get_contents(dirname(__FILE__) . '/data/01-dockerImage.json'),
-                file_get_contents(dirname(__FILE__) . '/data/03-dockerRemoved.json'),
+                $this->fromFile('/data/image/01-dockerImage.json'),
+                $this->fromFile('/data/image/03-dockerRemoved.json'),
                 'somerepo',
                 'sometag',
                 'b750fe79269d2ec9a3c593ef05b4332b1d1a02a62b4accb2c21d589ff2f5f2dc'
@@ -98,8 +83,8 @@ class ImageManagerIsolatedTest extends TestCase
     {
         return [
             [ 
-                file_get_contents(dirname(__FILE__) . '/data/04-dockerPull.json'), 
-                file_get_contents(dirname(__FILE__) . '/data/01-dockerImage.json'),
+                $this->fromFile('/data/image/04-dockerPull.json'), 
+                $this->fromFile('/data/image/01-dockerImage.json'),
                 'somerepo',
                 'sometag'
             ]
@@ -122,8 +107,8 @@ class ImageManagerIsolatedTest extends TestCase
     {
         return [
             [ 
-                'image_i_need',
-                file_get_contents(dirname(__FILE__) . '/data/06-dockerSearch.json'),
+                'sshd',
+                $this->fromFile('/data/image/06-dockerSearch.json'),
                 [
                     [
                         'name' => 'wma55/u1210sshd'

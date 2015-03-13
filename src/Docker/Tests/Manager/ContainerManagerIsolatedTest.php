@@ -5,20 +5,15 @@ namespace Docker\Tests\Manager;
 use Docker\Container;
 use Docker\Context\ContextBuilder;
 use Docker\Port;
-use Docker\Tests\TestCase;
+use Docker\Tests\IsolatedTestCase;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Client;
 
-use GuzzleHttp\Subscriber\Mock;
-use GuzzleHttp\Subscriber\History;
+
 
 use GuzzleHttp\Message\Response;
 
-class ContainerManagerIsolatedTest extends TestCase
+class ContainerManagerIsolatedTest extends IsolatedTestCase
 {
-    private $_booleanAllowed = ['1', 'true', 'True', '0', 'false', 'False'];
-    private $_booleanTrue = ['1', 'true', 'True'];
-    private $_booleanFalse = ['0', 'false', 'False'];
     /**
      * Return a container manager
      *
@@ -31,28 +26,15 @@ class ContainerManagerIsolatedTest extends TestCase
 
     private function getMockedManager($list, $clientOptions = [])
     {
-        $client = new Client($clientOptions);
-        $this->_history = new History();
-        $this->_mock = new Mock($list);
-
-        $client->getEmitter()->attach($this->_mock);
-        $client->getEmitter()->attach($this->_history);
-
-        $manager = new \Docker\Manager\ContainerManager($client);
-
+        $manager = new \Docker\Manager\ContainerManager($this->getMockedClient($list, $clientOptions));
         return $manager;
-    }
-
-    private function getRequestsHistory()
-    {
-        return $this->_history;
     }
 
 
     public function createProvider()
     {
         return [
-            [ file_get_contents(dirname(__FILE__) . '/data/07-container_create.json'), 'e90e34656806']
+            [ $this->fromFile('/data/container/07-create.json'), 'e90e34656806']
         ];
     }
 
@@ -68,7 +50,7 @@ class ContainerManagerIsolatedTest extends TestCase
         return [
             [
                 'e90e34656806', 
-                file_get_contents(dirname(__FILE__) . '/data/08-container_inspect.json'), 
+                $this->fromFile('/data/container/08-inspect.json'), 
                 '/boring_euclid'
             ]
         ];
@@ -79,7 +61,7 @@ class ContainerManagerIsolatedTest extends TestCase
         return [
             [
                 'e90e34656806', 
-                file_get_contents(dirname(__FILE__) . '/data/08-container_inspect.json')
+                $this->fromFile('/data/container/08-inspect.json')
             ]
         ];
     }
@@ -90,7 +72,7 @@ class ContainerManagerIsolatedTest extends TestCase
             [
                 'e90e34656806', 
                 30,
-                file_get_contents(dirname(__FILE__) . '/data/08-container_inspect.json')
+                $this->fromFile('/data/container/08-inspect.json')
             ]
         ];
     }
@@ -128,7 +110,7 @@ class ContainerManagerIsolatedTest extends TestCase
         return [
             [
                 'e90e34656806',
-                file_get_contents(dirname(__FILE__) . '/data/09-container_export.json'),
+                $this->fromFile('/data/container/09-export.json'),
                 'TAR_STREAM_HERE'
             ],
         ];
@@ -139,7 +121,7 @@ class ContainerManagerIsolatedTest extends TestCase
         return [
             [
                 'e90e34656806',
-                file_get_contents(dirname(__FILE__) . '/data/10-container_changes.json'),
+                $this->fromFile('/data/container/10-changes.json'),
                 3
             ],
         ];
@@ -151,12 +133,12 @@ class ContainerManagerIsolatedTest extends TestCase
             [
                 'e90e34656806',
                 'aux',
-                file_get_contents(dirname(__FILE__) . '/data/11-container_top.json'),
+                $this->fromFile('/data/container/11-top.json'),
             ],
             [
                 'abcdef012345',
                 'auxj',
-                file_get_contents(dirname(__FILE__) . '/data/11-container_top.json'),
+                $this->fromFile('/data/container/11-top.json'),
             ],
         ];
     }
@@ -167,7 +149,7 @@ class ContainerManagerIsolatedTest extends TestCase
             [
                 'e90e34656806',
                 ['sleep', '5'],
-                file_get_contents(dirname(__FILE__) . '/data/12-container_exec.json'),
+                $this->fromFile('/data/container/12-exec.json'),
                 'f90e34656806'
             ]
         ];
